@@ -13,10 +13,7 @@ describe Poker do
 
   describe "#bet" do
 
-  end
-
-  describe "#discard" do
-
+    it "keeps track of the current bet value"
   end
 
 end

@@ -1,64 +1,49 @@
-def my_uniq(array)
-  uniq_array = []
-
-  array.each do |el|
-    uniq_array << el unless uniq_array.include?(el)
-  end
-
-  uniq_array
-end
-
-# Alternatively with inject:
-#
-# def my_uniq(array)
-#   array.inject([]) do |uniq_array, el|
-#     uniq_array << el unless uniq_array.include?(el)
-#     uniq_array
-#   end
-# end
-
-def two_sum(array)
-  pairs = []
-
-  array.count.times do |i1|
-    (i1 + 1).upto(array.count - 1) do |i2|
-      pairs << [i1, i2] if array[i1] + array[i2] == 0
+class Array
+  def my_uniq(arr = self)
+    res = []
+    arr.each do |el|
+      res << el if !res.include?(el)
     end
+    return res
   end
 
-  pairs
-end
-
-def my_transpose(rows)
-  dimension = rows.first.count
-  cols = Array.new(dimension) { Array.new(dimension) }
-
-  dimension.times do |i|
-    dimension.times do |j|
-      cols[j][i] = rows[i][j]
-    end
-  end
-
-  cols
-end
-
-def pick_stocks(prices)
-  # can always make zero dollars by not buying/selling
-  best_pair = nil
-  best_profit = 0
-
-  prices.each_index do |buy_date|
-    prices.each_index do |sell_date|
-      # can't sell before buy
-      next if sell_date < buy_date
-
-      profit = prices[sell_date] - prices[buy_date]
-      if profit > best_profit
-        # Choose best days. Greed is good.
-        best_pair, best_profit = [buy_date, sell_date], profit
+  def two_sum
+    indices = []
+    self.each_with_index do |el1, idx1|
+      self.each_with_index do |el2,idx2|
+        indices << [idx1,idx2] if el1 + el2 == 0 && idx1 != idx2 && !indices.include?([idx2,idx1])
       end
     end
+    return indices
   end
 
-  best_pair
+  def my_transpose(arr)
+    transposed_array = Array.new(arr.length) { [] }
+
+    arr.each do |row|
+      row.each_with_index do |num, idx|
+        transposed_array[idx] << num
+      end
+    end
+    transposed_array
+  end
+
+  def stock_picker
+    max_profit = 0
+    profit_indices = []
+    i = 0
+    while i < self.length-1
+      j = i+1
+      while j < self.length
+        profit = self[j]-self[i]
+        if profit > max_profit
+          max_profit = profit
+          profit_indices = [i,j]
+        end
+        j +=1
+      end
+      i +=1
+    end
+    return profit_indices
+  end
 end

@@ -1,65 +1,58 @@
 class TowersOfHanoiGame
-  attr_reader :stacks
+  attr_accessor :towers
+  def initialize()
+    @towers = Array.new(3) {[]}
+    @towers[0] += [1,2,3]
+  end
 
-  def initialize(stacks = nil)
-    @stacks = stacks || [[3, 2, 1], [], []]
+  def move(start_pile, end_pile)
+    if valid_move?(start_pile,end_pile)
+      @towers[end_pile].unshift(@towers[start_pile].shift)
+    end
+  end
+
+  def valid_move?(start_pile,end_pile)
+    raise "error" if @towers[start_pile].empty?
+    return true if @towers[end_pile].empty?
+    raise "error" unless @towers[start_pile].first < @towers[end_pile].first
+    true
+  end
+
+  def get_input
+    input = gets.chomp.split(",").map(&:to_i)
   end
 
   def play
-    display
-
-    until won?
-      puts 'What tower do you want to move from?'
-      from_tower = gets.to_i
-
-      puts 'What tower do you want to move to?'
-      to_tower = gets.to_i
-
-      if valid_move?(from_tower, to_tower)
-        move(from_tower, to_tower)
-        display
-      else
-        display
-        puts "Invalid move. Try again."
-      end
+    while !won?
+      system("clear")
+      render
+      play_turn
     end
+    puts("You win!")
+  end
 
-    puts 'You win!'
+  def play_turn
+    puts("Provide the start pile index and the end pile index: x,y")
+    begin
+      input = get_input
+      start_pile,end_pile = input
+      move(start_pile,end_pile)
+    rescue
+      puts ("Invalid move, try again")
+      retry
+    end
   end
 
   def won?
-    @stacks[0].empty? && @stacks[1..2].any?(&:empty?)
-  end
-
-  def valid_move?(from_tower, to_tower)
-    return false unless [from_tower, to_tower].all? { |i| i.between?(0, 2) }
-
-    !@stacks[from_tower].empty? && (
-      @stacks[to_tower].empty? ||
-      @stacks[to_tower].last > @stacks[from_tower].last
-    )
-  end
-
-  def move(from_tower, to_tower)
-    raise "cannot move from empty stack" if @stacks[from_tower].empty?
-    raise "cannot move onto smaller disk" unless valid_move?(from_tower, to_tower)
-    @stacks[to_tower] << @stacks[from_tower].pop
+    @towers[1..2].any? { |tower| tower == [1,2,3] }
   end
 
   def render
-    'Tower 0:  ' + @stacks[0].join('  ') + "\n" +
-      'Tower 1:  ' + @stacks[1].join('  ') + "\n" +
-      'Tower 2:  ' + @stacks[2].join('  ') + "\n"
-  end
-
-  def display
-    # this moves everything up in the console so that whatever we print
-    # afterwards appears at the top
-    system('clear')
-    puts render
+    p @towers
   end
 end
 
 if $PROGRAM_NAME == __FILE__
-  TowersOfHanoi.new().play
+  game = TowersOfHanoiGame.new
+  game.play
 end

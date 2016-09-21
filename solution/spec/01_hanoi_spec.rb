@@ -1,55 +1,48 @@
 require '01_hanoi'
+require 'rspec'
 
-describe TowersOfHanoiGame do
-  subject(:towers) { TowersOfHanoiGame.new }
-
-  it "sets stacks up in the default way" do
-    expect(towers.stacks).to eq([[3, 2, 1], [], []])
-  end
-
-  describe "#render" do
-    it "pretty-prints stacks" do
-      expect(towers.render).to eq("Tower 0:  3  2  1\nTower 1:  \nTower 2:  \n")
-    end
-
-    it "prints shorter stacks" do
-      towers = TowersOfHanoiGame.new([[1], [2], [3]])
-      expect(towers.render).to eq("Tower 0:  1\nTower 1:  2\nTower 2:  3\n")
-    end
-  end
+describe "Towers of Hanoi game" do
+  subject(:game) {TowersOfHanoiGame.new()}
 
   describe "#move" do
-    it "allows moving to a blank space" do
-      towers.move(0, 1)
-      expect(towers.stacks).to eq([[3, 2], [1], []])
+    it "receives start pile and end pile positions" do
+      expect(subject).to receive(:move).with(0, 1)
+      subject.move(0,1)
     end
 
-    it "allows moving onto a larger disk" do
-      towers = TowersOfHanoiGame.new([[1], [2], []])
-      towers.move(0, 1)
-      expect(towers.stacks).to eq([[], [2, 1], []])
+    it "moves piece to new position" do
+      subject.move(0,1)
+      expect(game.towers[1]).to eq([1])
     end
 
-    it "does not allow moving from an empty stack" do
-      expect do
-        towers.move(1, 2)
-      end.to raise_error("cannot move from empty stack")
+    it "moves piece from old position" do
+      subject.move(0,1)
+      expect(game.towers[0]).to eq([2,3])
     end
 
-    it "does not allow moving onto a smaller disk" do
-      towers = TowersOfHanoiGame.new([[1], [2], []])
-      expect do
-        towers.move(1, 0)
-      end.to raise_error("cannot move onto smaller disk")
+    it "doesn't move a bigger piece onto a smaller piece" do
+      subject.towers = [[1],[2],[3]]
+
+      expect{ game.move(1,0) }.to raise_error
     end
   end
 
-  describe "#game_won?" do
-    it "is not won at the start" do; expect(towers).not_to be_won; end
+  describe "#won" do
+    it "returns true if game is over" do
+      subject.towers = [[],[],[1,2,3]]
 
-    it "is won when all disks are moved" do
-      towers = TowersOfHanoiGame.new([[], [], [3, 2, 1]])
-      expect(towers).to be_won
+      expect(game.won?).to be true
+    end
+
+    it "returns false if game is not over" do
+      subject.towers = [[],[2],[1,3]]
+
+      expect(game.won?).to be false
+    end
+
+    it "returns false if starting position is full" do
+      expect(game.won?).to be false
     end
   end
+
 end

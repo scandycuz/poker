@@ -58,6 +58,10 @@ class Hand
     end
   end
 
+  def empty?
+    return @cards.empty?
+  end
+
   def flush?
     @cards.all? { |card| card.suit == @cards.first.suit }
   end
